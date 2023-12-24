@@ -11,8 +11,15 @@ router.get("/client.js", (_, res) =>
 /**
  * Student code starts here
  */
-
+const pg = require("pg");
 // connect to postgres
+const pool = new pg.Pool({
+  user: "postgres",
+  host: "localhost",
+  database: "recipeguru",
+  password: "lol",
+  port: 5454,
+});
 
 router.get("/type", async (req, res) => {
   const { type } = req.query;
@@ -20,7 +27,14 @@ router.get("/type", async (req, res) => {
 
   // return all ingredients of a type
 
-  res.status(501).json({ status: "not implemented", rows: [] });
+  const { rows } = await pool.query(
+    `
+    SELECT * FROM ingredients
+    WHERE type=$1
+  `,
+    [type]
+  );
+  res.status(200).json({ rows });
 });
 
 router.get("/search", async (req, res) => {
@@ -30,8 +44,24 @@ router.get("/search", async (req, res) => {
 
   // return all columns as well as the count of all rows as total_count
   // make sure to account for pagination and only return 5 rows at a time
-
-  res.status(501).json({ status: "not implemented", rows: [] });
+  const params = [page * 5];
+  let whereClause;
+  if (term) {
+    whereClause = `
+    WHERE CONCAT(title, type) ILIKE $2
+    `;
+    params.push(`%${term}%`);
+  }
+  const { rows } = await pool.query(
+    `
+    SELECT *, COUNT(*) OVER ()::INTEGER AS total_count FROM ingredients
+    ${whereClause}
+    OFFSET $1 LIMIT 5;
+    `,
+    params
+  );
+  console.log(rows);
+  res.status(200).json({ rows });
 });
 
 /**

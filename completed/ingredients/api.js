@@ -17,7 +17,7 @@ const pool = new pg.Pool({
   host: "localhost",
   database: "recipeguru",
   password: "lol",
-  port: 5432,
+  port: 5454,
 });
 
 router.get("/type", async (req, res) => {
@@ -36,7 +36,7 @@ router.get("/search", async (req, res) => {
   page = page ? page : 0;
   console.log("search ingredients", term, page);
 
-  let whereClause;
+  let whereClause = "";
   const params = [page * 5];
   if (term) {
     whereClause = `WHERE CONCAT(title, type) ILIKE $2`;
