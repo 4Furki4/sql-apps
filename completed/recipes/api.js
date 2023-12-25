@@ -26,7 +26,7 @@ const pool = new pg.Pool({
   host: "localhost",
   database: "recipeguru",
   password: "lol",
-  port: 5432,
+  port: 5454,
 });
 
 router.get("/search", async function (req, res) {
@@ -90,7 +90,12 @@ router.get("/get", async (req, res) => {
     photosPromise,
     ingredientsPromise,
   ]);
-
+  console.log({
+    ingredients: ingredientsRows,
+    photos: photosRows.map((photo) => photo.url),
+    title: photosRows[0].title,
+    body: photosRows[0].body,
+  });
   res.json({
     ingredients: ingredientsRows,
     photos: photosRows.map((photo) => photo.url),
